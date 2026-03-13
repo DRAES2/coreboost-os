@@ -16,6 +16,8 @@ export async function POST(req: Request) {
     const robotsMatch = html.match(
       /<meta\s+name=["']robots["']\s+content=["'](.*?)["']/i
     );
+    const ogMatch = html.match(/<meta\s+property=["']og:title["']/i);
+    const imgWithoutAlt = html.match(/<img(?![^>]*alt=)[^>]*>/i);
 
     const textOnly = html
       .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -56,6 +58,12 @@ export async function POST(req: Request) {
     if (!canonical) issues.push("Missing canonical tag");
     else strengths.push("Canonical tag found");
 
+    if (!ogMatch) issues.push("Missing OpenGraph tags");
+    else strengths.push("OpenGraph metadata detected");
+
+    if (imgWithoutAlt) issues.push("Images missing alt text");
+    else strengths.push("Images include alt text");
+
     if (robots?.toLowerCase().includes("noindex")) {
       issues.push("Page may be blocked from indexing (robots noindex)");
     } else {
@@ -74,7 +82,7 @@ export async function POST(req: Request) {
     if (response.ok) strengths.push("Website reachable");
     else issues.push("Website not responding correctly");
 
-    let score = 100 - issues.length * 10;
+    let score = 100 - issues.length * 8;
     if (score < 0) score = 0;
 
     return Response.json({
