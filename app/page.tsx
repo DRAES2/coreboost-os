@@ -6,6 +6,7 @@ type AuditResult = {
   score: number;
   issues: string[];
   strengths: string[];
+  error?: string;
 };
 
 export default function Home() {
@@ -14,21 +15,27 @@ export default function Home() {
   const [submittedUrl, setSubmittedUrl] = useState("");
 
   async function handleAudit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const cleanUrl = url.trim();
-    if (!cleanUrl) return;
+  const cleanUrl = url.trim();
+  if (!cleanUrl) return;
 
-    setSubmittedUrl(cleanUrl);
+  setSubmittedUrl(cleanUrl);
 
-    const res = await fetch("/api/audit", {
-      method: "POST",
-      body: JSON.stringify({ url: cleanUrl }),
-    });
+  const res = await fetch("/api/audit", {
+    method: "POST",
+    body: JSON.stringify({ url: cleanUrl }),
+  });
 
-    const data = await res.json();
-    setResult(data);
-  }
+  const data = await res.json();
+
+  setResult({
+    score: data.score ?? 0,
+    issues: data.issues ?? [],
+    strengths: data.strengths ?? [],
+    error: data.error,
+  });
+}
 
   return (
     <main className="min-h-screen bg-black px-6 py-20 text-white">
