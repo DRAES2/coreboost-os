@@ -13,7 +13,7 @@ export default function Home() {
   const [result, setResult] = useState<AuditResult | null>(null);
   const [submittedUrl, setSubmittedUrl] = useState("");
 
-  function handleAudit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleAudit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     const cleanUrl = url.trim();
@@ -21,19 +21,13 @@ export default function Home() {
 
     setSubmittedUrl(cleanUrl);
 
-    setResult({
-      score: 72,
-      issues: [
-        "Meta description is missing or weak",
-        "Mobile page speed needs improvement",
-        "Internal linking structure is limited",
-      ],
-      strengths: [
-        "Website is reachable",
-        "Title tag is present",
-        "Site appears secure with HTTPS",
-      ],
+    const res = await fetch("/api/audit", {
+      method: "POST",
+      body: JSON.stringify({ url: cleanUrl }),
     });
+
+    const data = await res.json();
+    setResult(data);
   }
 
   return (
