@@ -2,40 +2,46 @@
 
 import { useState } from "react";
 
+type AuditResult = {
+  score: number;
+  issues: string[];
+  strengths: string[];
+};
+
 export default function Home() {
   const [url, setUrl] = useState("");
-  const [result, setResult] = useState<null | {
-    score: number;
-    issues: string[];
-    wins: string[];
-  }>(null);
+  const [result, setResult] = useState<AuditResult | null>(null);
+  const [submittedUrl, setSubmittedUrl] = useState("");
 
-  function handleAudit(e: React.FormEvent) {
+  function handleAudit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!url.trim()) return;
+    const cleanUrl = url.trim();
+    if (!cleanUrl) return;
+
+    setSubmittedUrl(cleanUrl);
 
     setResult({
       score: 72,
       issues: [
-        "Meta description is missing",
-        "Page speed needs improvement",
-        "Internal linking is weak",
+        "Meta description is missing or weak",
+        "Mobile page speed needs improvement",
+        "Internal linking structure is limited",
       ],
-      wins: [
-        "Homepage is indexed",
-        "Title tag exists",
-        "Site is reachable",
+      strengths: [
+        "Website is reachable",
+        "Title tag is present",
+        "Site appears secure with HTTPS",
       ],
     });
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white px-6 py-16">
-      <div className="mx-auto max-w-3xl">
+    <main className="min-h-screen bg-black px-6 py-20 text-white">
+      <div className="mx-auto max-w-4xl">
         <div className="mb-10">
-          <h1 className="text-4xl font-bold tracking-tight">CoreBoost SEO Audit</h1>
-          <p className="mt-3 text-zinc-300 text-lg">
+          <h1 className="text-5xl font-bold tracking-tight">CoreBoost SEO Audit</h1>
+          <p className="mt-4 text-lg text-zinc-300">
             Run a fast website audit and uncover SEO issues, missed opportunities,
             and next-step fixes.
           </p>
@@ -47,46 +53,56 @@ export default function Home() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="Enter a website URL"
-            className="flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none"
+            className="flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-4 text-white outline-none placeholder:text-zinc-500"
           />
           <button
             type="submit"
-            className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-black hover:bg-yellow-400"
+            className="rounded-xl bg-yellow-500 px-8 py-4 font-semibold text-black transition hover:bg-yellow-400"
           >
             Run Audit
           </button>
         </form>
 
         {result && (
-          <div className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-            <h2 className="text-2xl font-semibold">Audit Results</h2>
-            <p className="mt-2 text-zinc-300">URL: {url}</p>
-
-            <div className="mt-6">
-              <div className="text-5xl font-bold text-yellow-400">{result.score}</div>
-              <div className="text-zinc-400">SEO Score</div>
+          <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-8">
+            <div className="mb-6">
+              <p className="text-sm uppercase tracking-wide text-zinc-400">
+                Audit Results
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">{submittedUrl}</h2>
             </div>
 
-            <div className="mt-8 grid gap-8 sm:grid-cols-2">
+            <div className="mb-8 rounded-2xl border border-yellow-500/30 bg-zinc-900 p-6">
+              <p className="text-sm uppercase tracking-wide text-zinc-400">SEO Score</p>
+              <div className="mt-2 text-6xl font-bold text-yellow-400">
+                {result.score}
+              </div>
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-2">
               <div>
-                <h3 className="mb-3 text-lg font-semibold">Issues Found</h3>
-                <ul className="space-y-2 text-zinc-300">
+                <h3 className="mb-4 text-xl font-semibold">Issues Found</h3>
+                <ul className="space-y-3 text-zinc-300">
                   {result.issues.map((item) => (
-                    <li key={item}>• {item}</li>
+                    <li key={item} className="rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+                      {item}
+                    </li>
                   ))}
                 </ul>
               </div>
 
               <div>
-                <h3 className="mb-3 text-lg font-semibold">What’s Working</h3>
-                <ul className="space-y-2 text-zinc-300">
-                  {result.wins.map((item) => (
-                    <li key={item}>• {item}</li>
+                <h3 className="mb-4 text-xl font-semibold">Strengths</h3>
+                <ul className="space-y-3 text-zinc-300">
+                  {result.strengths.map((item) => (
+                    <li key={item} className="rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+                      {item}
+                    </li>
                   ))}
                 </ul>
               </div>
             </div>
-          </div>
+          </section>
         )}
       </div>
     </main>
