@@ -13,29 +13,43 @@ export default function Home() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<AuditResult | null>(null);
   const [submittedUrl, setSubmittedUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [requestError, setRequestError] = useState("");
 
   async function handleAudit(e: React.FormEvent<HTMLFormElement>) {
-  e.preventDefault();
+    e.preventDefault();
 
-  const cleanUrl = url.trim();
-  if (!cleanUrl) return;
+    const cleanUrl = url.trim();
+    if (!cleanUrl) return;
 
-  setSubmittedUrl(cleanUrl);
+    setSubmittedUrl(cleanUrl);
+    setLoading(true);
+    setRequestError("");
+    setResult(null);
 
-  const res = await fetch("/api/audit", {
-    method: "POST",
-    body: JSON.stringify({ url: cleanUrl }),
-  });
+    try {
+      const res = await fetch("/api/audit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: cleanUrl }),
+      });
 
-  const data = await res.json();
+      const data = await res.json();
 
-  setResult({
-    score: data.score ?? 0,
-    issues: data.issues ?? [],
-    strengths: data.strengths ?? [],
-    error: data.error,
-  });
-}
+      setResult({
+        score: data.score ?? 0,
+        issues: data.issues ?? [],
+        strengths: data.strengths ?? [],
+        error: data.error,
+      });
+    } catch {
+      setRequestError("Something went wrong while running the audit.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-black px-6 py-20 text-white">
@@ -58,14 +72,26 @@ export default function Home() {
           />
           <button
             type="submit"
-            className="rounded-xl bg-yellow-500 px-8 py-4 font-semibold text-black transition hover:bg-yellow-400"
+            disabled={loading}
+            className="rounded-xl bg-yellow-500 px-8 py-4 font-semibold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Run Audit
+            {loading ? "Running Audit..." : "Run Audit"}
           </button>
         </form>
 
+        {requestError && (
+          <div className="mt-4 rounded-xl border border-red-500/30 bg-red-950/40 p-4 text-red-200">
+            {requestError}
+          </div>
+        )}
+
         {result && (
           <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-8">
+            {result.error && (
+              <div className="mb-6 rounded-xl border border-red-500/30 bg-red-950/40 p-4 text-red-200">
+                {result.error}
+              </div>
+            )}
             <div className="mb-6">
               <p className="text-sm uppercase tracking-wide text-zinc-400">
                 Audit Results
