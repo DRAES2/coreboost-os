@@ -62,6 +62,8 @@ export default function Home() {
   async function handleGBPScan(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    console.log("GBP scan triggered");
+
     if (!keyword || !city) return;
 
     setLoadingGBP(true);
