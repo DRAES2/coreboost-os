@@ -85,7 +85,17 @@ export default function Home() {
       setLoadingGBP(false);
     }
   }
+  async function handleLeadSearch(e:any){
 
+  e.preventDefault()
+
+  const query = `${keyword} ${city}`
+
+  const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`
+
+  window.open(url,"_blank")
+
+  }
   return (
     <main className="min-h-screen bg-black px-6 py-20 text-white">
       <div className="mx-auto max-w-4xl">
@@ -172,7 +182,45 @@ export default function Home() {
         
 
         </section>
+        {/* LEAD FINDER */}
 
+        <section className="mb-16">
+
+        <h2 className="text-3xl font-semibold mb-4">
+        Lead Finder
+        </h2>
+
+        <form
+          onSubmit={handleLeadSearch}
+          className="flex flex-wrap gap-4"
+        >
+
+        <input
+        type="text"
+        value={keyword}
+        onChange={(e)=>setKeyword(e.target.value)}
+        placeholder="Service (ex: plumber)"
+        className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3"
+        />
+
+        <input
+        type="text"
+        value={city}
+        onChange={(e)=>setCity(e.target.value)}
+        placeholder="City (ex: phoenix)"
+        className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3"
+        />
+
+        <button
+        type="submit"
+        className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-black"
+        >
+        Find Leads
+        </button>
+
+        </form>
+
+        </section>
         {/* WEBSITE AUDIT */}
 
         <section>
