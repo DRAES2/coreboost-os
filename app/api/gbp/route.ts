@@ -2,18 +2,39 @@ export async function POST(req: Request) {
   try {
     const { keyword, city } = await req.json();
 
-    const businesses = [
-      { name: `${keyword} Pro Services`, rating: "4.7", reviews: "134" },
-      { name: `${keyword} Experts ${city}`, rating: "4.5", reviews: "82" },
-      { name: `${city} Elite ${keyword}`, rating: "4.8", reviews: "201" }
-    ];
+    const query = `${keyword} ${city}`;
+    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
 
-    return Response.json({ businesses });
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115 Safari/537.36",
+      },
+    });
 
+    const html = await response.text();
+
+    const businesses: any[] = [];
+
+    const nameMatches = html.match(/<h3[^>]*>(.*?)<\/h3>/g) || [];
+
+    for (let i = 0; i < Math.min(nameMatches.length, 20); i++) {
+      const name = nameMatches[i].replace(/<[^>]+>/g, "").trim();
+
+      businesses.push({
+        name,
+        rating: "N/A",
+        reviews: "N/A",
+      });
+    }
+
+    return Response.json({
+      businesses,
+    });
   } catch {
     return Response.json({
       businesses: [],
-      error: "Failed to scan"
+      error: "Failed to scan",
     });
   }
 }
