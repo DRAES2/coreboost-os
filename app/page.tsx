@@ -23,6 +23,7 @@ export default function Home() {
   const [city, setCity] = useState("");
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [loadingGBP, setLoadingGBP] = useState(false);
+  const [start, setStart] = useState(0);
 
   async function handleAudit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -60,31 +61,40 @@ export default function Home() {
   }
 
   async function handleGBPScan(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  e.preventDefault();
 
-    console.log("GBP scan triggered");
+  if (!keyword || !city) return;
 
-    if (!keyword || !city) return;
-
-    setLoadingGBP(true);
-
-    try {
-      const res = await fetch("/api/gbp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ keyword, city }),
-      });
-
-      const data = await res.json();
-      setBusinesses(data.businesses || []);
-    } catch {
-      console.error("GBP scan failed");
-    } finally {
-      setLoadingGBP(false);
-    }
+  // reset list when starting new scan
+  if (start === 0) {
+    setBusinesses([]);
   }
+
+  setLoadingGBP(true);
+  try {
+    const res = await fetch("/api/gbp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ keyword, city, start }),
+    });
+
+    const data = await res.json();
+
+    setBusinesses((prev) => {
+      const existing = new Set(prev.map((b) => b.name));
+      const filtered = data.businesses.filter((b: any) => !existing.has(b.name));
+      return [...prev, ...filtered];
+    });
+    setStart(data.nextStart);
+
+  } catch {
+    console.error("GBP scan failed");
+  } finally {
+    setLoadingGBP(false);
+  }
+}
 
   return (
     <main className="min-h-screen bg-black px-6 py-20 text-white">
@@ -129,33 +139,47 @@ export default function Home() {
 
             <button
               type="submit"
-              className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-black"
+              disabled={loadingGBP}
+              className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-black disabled:opacity-60"
             >
               {loadingGBP ? "Scanning..." : "Scan GBP"}
             </button>
           </form>
 
           {businesses.length > 0 && (
-            <div className="mt-6 space-y-3 max-h-[400px] overflow-y-auto">
+            <>
 
-              {businesses.map((biz, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl border border-zinc-800 bg-zinc-900 p-4"
-                >
-                  <div className="text-lg font-semibold">
-                    {biz.name}
+              <div className="mt-6 space-y-3 max-h-[400px] overflow-y-auto">
+
+                {businesses.map((biz, i) => (
+                  <div
+                    key={i}
+                    className="rounded-xl border border-zinc-800 bg-zinc-900 p-4"
+                  >
+                    <div className="text-lg font-semibold">
+                      {biz.name}
+                    </div>
+
+                    <div className="text-sm text-zinc-400">
+                      ⭐ {biz.rating} • {biz.reviews} reviews
+                    </div>
+
                   </div>
+                ))}
 
-                  <div className="text-sm text-zinc-400">
-                    ⭐ {biz.rating} • {biz.reviews} reviews
-                  </div>
+              </div>
 
-                </div>
-              ))}
+              <button
+                onClick={(e) => handleGBPScan(e as any)}
+                className="mt-4 rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-black"
+              >
+                Load More Businesses
+              </button>
 
-            </div>
+            </>
           )}
+
+        
 
         </section>
 
