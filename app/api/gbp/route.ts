@@ -1,3 +1,8 @@
+export async function GET() {
+  return Response.json({
+    status: "GBP API running"
+  });
+}
 export async function POST(req: Request) {
   try {
     const { keyword, city, start = 0 } = await req.json();
