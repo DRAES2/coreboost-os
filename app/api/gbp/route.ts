@@ -1,9 +1,9 @@
 export async function POST(req: Request) {
   try {
-    const { keyword, city } = await req.json();
+    const { keyword, city, start = 0 } = await req.json();
 
     const query = `${keyword} ${city}`;
-    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&start=${start}`;
 
     const response = await fetch(url, {
       headers: {
@@ -18,8 +18,10 @@ export async function POST(req: Request) {
 
     const nameMatches = html.match(/<h3[^>]*>(.*?)<\/h3>/g) || [];
 
-    for (let i = 0; i < Math.min(nameMatches.length, 20); i++) {
-      const name = nameMatches[i].replace(/<[^>]+>/g, "").trim();
+    for (let i = 0; i < nameMatches.length; i++) {
+      const name = nameMatches[i]
+        .replace(/<[^>]+>/g, "")
+        .trim();
 
       businesses.push({
         name,
@@ -30,7 +32,9 @@ export async function POST(req: Request) {
 
     return Response.json({
       businesses,
+      nextStart: start + 20,
     });
+
   } catch {
     return Response.json({
       businesses: [],
