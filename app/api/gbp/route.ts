@@ -10,17 +10,26 @@ export async function POST(req: Request) {
     const query = encodeURIComponent(`${keyword} ${city}`);
 
     const url =
-      `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}`;
+      `https://www.google.com/maps/search/${query}`;
 
-    const res = await fetch(url);
-    const data = await res.json();
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+      },
+    });
 
-    const businesses =
-      data.results?.map((place: any) => ({
-        name: place.name,
-        rating: place.rating ?? "N/A",
-        reviews: place.user_ratings_total ?? "N/A",
-      })) || [];
+    const html = await res.text();
+
+    const matches = [...html.matchAll(/"title":"(.*?)"/g)];
+
+    const businesses = matches
+      .slice(0, 20)
+      .map((m) => ({
+        name: m[1],
+        rating: "N/A",
+        reviews: "N/A",
+      }));
 
     return Response.json({
       businesses,
