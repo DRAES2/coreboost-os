@@ -60,42 +60,27 @@ export default function Home() {
     }
   }
 
-  async function handleGBPScan(e: React.FormEvent<HTMLFormElement>) {
+  async function handleGBPScan(e: React.FormEvent) {
     e.preventDefault();
 
     if (!keyword || !city) return;
 
-    // reset list when starting new scan
-    if (start === 0) {
-      setBusinesses([]);
-    }
+    setLoadingGBP(true);
 
-      setLoadingGBP(true);
-      try {
-        const res = await fetch("/api/gbp", {
-          method: "POST",
+    try {
+      const res = await fetch("/api/gbp", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ keyword, city, start }),
+        body: JSON.stringify({ keyword, city }),
       });
 
       const data = await res.json();
 
-      console.log("GBP response:", data);
-
-      setBusinesses((prev) => [...prev, ...data.businesses]);
-      setStart(data.nextStart);
-
-      setBusinesses((prev) => {
-        const existing = new Set(prev.map((b) => b.name));
-        const filtered = data.businesses.filter((b: any) => !existing.has(b.name));
-        return [...prev, ...filtered];
-      });
-      setStart(data.nextStart);
-
-    } catch {
-      console.error("GBP scan failed");
+      setBusinesses(data.businesses || []);
+    } catch (err) {
+      console.error("scan failed", err);
     } finally {
       setLoadingGBP(false);
     }
