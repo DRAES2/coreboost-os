@@ -82,6 +82,11 @@ export default function Home() {
 
     const data = await res.json();
 
+    console.log("GBP response:", data);
+
+    setBusinesses((prev) => [...prev, ...data.businesses]);
+    setStart(data.nextStart);
+
     setBusinesses((prev) => {
       const existing = new Set(prev.map((b) => b.name));
       const filtered = data.businesses.filter((b: any) => !existing.has(b.name));
