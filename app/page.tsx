@@ -15,16 +15,18 @@ export default function Home() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<AuditResult | null>(null);
   const [submittedUrl, setSubmittedUrl] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loadingAudit, setLoadingAudit] = useState(false);
   const [requestError, setRequestError] = useState("");
 
-  // GBP SCANNER STATES
+  // LEAD FINDER STATES
   const [keyword, setKeyword] = useState("");
   const [city, setCity] = useState("");
-  const [businesses, setBusinesses] = useState<any[]>([]);
-  const [loadingGBP, setLoadingGBP] = useState(false);
-  const [start, setStart] = useState(0);
+  const [leads, setLeads] = useState<any[]>([]);
+  const [loadingLeads, setLoadingLeads] = useState(false);
 
+  // -------------------------------
+  // WEBSITE AUDIT
+  // -------------------------------
   async function handleAudit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -32,7 +34,7 @@ export default function Home() {
     if (!cleanUrl) return;
 
     setSubmittedUrl(cleanUrl);
-    setLoading(true);
+    setLoadingAudit(true);
     setRequestError("");
     setResult(null);
 
@@ -56,76 +58,75 @@ export default function Home() {
     } catch {
       setRequestError("Something went wrong while running the audit.");
     } finally {
-      setLoading(false);
+      setLoadingAudit(false);
     }
   }
 
-  async function handleGBPScan(e: React.FormEvent) {
+  // -------------------------------
+  // LEAD FINDER (CONNECTED TO SCRAPER)
+  // -------------------------------
+  async function handleLeadSearch(e: any) {
     e.preventDefault();
 
     if (!keyword || !city) return;
 
-    setLoadingGBP(true);
+    setLoadingLeads(true);
 
     try {
-      const res = await fetch("/api/gbp", {
+      const res = await fetch("/api/scrape", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ keyword, city }),
+        body: JSON.stringify({
+          query: `${keyword} ${city}`,
+        }),
       });
 
       const data = await res.json();
 
-      setBusinesses(data.businesses || []);
+      setLeads(data.leads || []);
     } catch (err) {
-      console.error("scan failed", err);
+      console.error("Lead scrape failed:", err);
     } finally {
-      setLoadingGBP(false);
+      setLoadingLeads(false);
     }
   }
-  async function handleLeadSearch(e:any){
 
-  e.preventDefault()
-
-  const query = `${keyword} ${city}`
-
-  const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`
-
-  window.open(url,"_blank")
-
-  }
   return (
     <main className="min-h-screen bg-black px-6 py-20 text-white">
       <div className="mx-auto max-w-4xl">
 
+        {/* HEADER */}
         <div className="mb-12">
           <h1 className="text-5xl font-bold tracking-tight">
             CoreBoost SEO Tools
           </h1>
           <p className="mt-4 text-lg text-zinc-300">
-            Scan Google Business Profiles and websites instantly while cold calling.
+            Find leads and audit websites instantly while cold calling.
           </p>
         </div>
 
-        {/* GBP SCANNER */}
+        {/* ========================= */}
+        {/* LEAD FINDER */}
+        {/* ========================= */}
 
         <section className="mb-16">
 
           <h2 className="text-3xl font-semibold mb-4">
-            GBP Scanner
+            Lead Finder
           </h2>
 
           <form
-            onSubmit={handleGBPScan}
+            onSubmit={handleLeadSearch}
             className="flex flex-wrap gap-4"
           >
+
             <input
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder="Keyword (ex: plumber)"
+              placeholder="Service (ex: plumber)"
               className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3"
             />
 
@@ -139,89 +140,52 @@ export default function Home() {
 
             <button
               type="submit"
-              disabled={loadingGBP}
+              disabled={loadingLeads}
               className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-black disabled:opacity-60"
             >
-              {loadingGBP ? "Scanning..." : "Scan GBP"}
+              {loadingLeads ? "Finding Leads..." : "Find Leads"}
             </button>
+
           </form>
 
-          {businesses.length > 0 && (
-            <>
+          {/* RESULTS */}
 
-              <div className="mt-6 space-y-3 max-h-[400px] overflow-y-auto">
+          {leads.length > 0 && (
+            <div className="mt-6 max-h-[400px] overflow-y-auto space-y-3">
 
-                {businesses.map((biz, i) => (
-                  <div
-                    key={i}
-                    className="rounded-xl border border-zinc-800 bg-zinc-900 p-4"
-                  >
-                    <div className="text-lg font-semibold">
-                      {biz.name}
-                    </div>
-
-                    <div className="text-sm text-zinc-400">
-                      ⭐ {biz.rating} • {biz.reviews} reviews
-                    </div>
-
+              {leads.map((lead, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl border border-zinc-800 bg-zinc-900 p-4"
+                >
+                  <div className="text-lg font-semibold">
+                    {lead.position}. {lead.name}
                   </div>
-                ))}
 
-              </div>
+                  <div className="text-sm text-zinc-300">
+                    📞 {lead.phone || "No phone"}
+                  </div>
 
-              <button
-                onClick={(e) => handleGBPScan(e as any)}
-                className="mt-4 rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-black"
-              >
-                Load More Businesses
-              </button>
+                  {lead.website && (
+                    <a
+                      href={lead.website}
+                      target="_blank"
+                      className="text-sm text-blue-400 underline"
+                    >
+                      Website
+                    </a>
+                  )}
+                </div>
+              ))}
 
-            </>
+            </div>
           )}
 
-        
-
         </section>
-        {/* LEAD FINDER */}
 
-        <section className="mb-16">
-
-        <h2 className="text-3xl font-semibold mb-4">
-        Lead Finder
-        </h2>
-
-        <form
-          onSubmit={handleLeadSearch}
-          className="flex flex-wrap gap-4"
-        >
-
-        <input
-        type="text"
-        value={keyword}
-        onChange={(e)=>setKeyword(e.target.value)}
-        placeholder="Service (ex: plumber)"
-        className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3"
-        />
-
-        <input
-        type="text"
-        value={city}
-        onChange={(e)=>setCity(e.target.value)}
-        placeholder="City (ex: phoenix)"
-        className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3"
-        />
-
-        <button
-        type="submit"
-        className="rounded-xl bg-yellow-500 px-6 py-3 font-semibold text-black"
-        >
-        Find Leads
-        </button>
-
-        </form>
-
-        </section>
+        {/* ========================= */}
         {/* WEBSITE AUDIT */}
+        {/* ========================= */}
 
         <section>
 
@@ -233,21 +197,23 @@ export default function Home() {
             onSubmit={handleAudit}
             className="flex flex-col gap-4 sm:flex-row"
           >
+
             <input
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="Enter a website URL"
-              className="flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-4 text-white outline-none placeholder:text-zinc-500"
+              className="flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-4 text-white outline-none"
             />
 
             <button
               type="submit"
-              disabled={loading}
-              className="rounded-xl bg-yellow-500 px-8 py-4 font-semibold text-black transition hover:bg-yellow-400 disabled:opacity-70"
+              disabled={loadingAudit}
+              className="rounded-xl bg-yellow-500 px-8 py-4 font-semibold text-black disabled:opacity-70"
             >
-              {loading ? "Running Audit..." : "Run Audit"}
+              {loadingAudit ? "Running Audit..." : "Run Audit"}
             </button>
+
           </form>
 
           {requestError && (
@@ -259,14 +225,8 @@ export default function Home() {
           {result && (
             <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-8">
 
-              {result.error && (
-                <div className="mb-6 rounded-xl border border-red-500/30 bg-red-950/40 p-4 text-red-200">
-                  {result.error}
-                </div>
-              )}
-
               <div className="mb-6">
-                <p className="text-sm uppercase tracking-wide text-zinc-400">
+                <p className="text-sm uppercase text-zinc-400">
                   Audit Results
                 </p>
 
@@ -276,11 +236,7 @@ export default function Home() {
               </div>
 
               <div className="mb-8 rounded-2xl border border-yellow-500/30 bg-zinc-900 p-6">
-                <p className="text-sm uppercase tracking-wide text-zinc-400">
-                  SEO Score
-                </p>
-
-                <div className="mt-2 text-6xl font-bold text-yellow-400">
+                <div className="text-6xl font-bold text-yellow-400">
                   {result.score}
                 </div>
               </div>
@@ -289,15 +245,12 @@ export default function Home() {
 
                 <div>
                   <h3 className="mb-4 text-xl font-semibold">
-                    Issues Found
+                    Issues
                   </h3>
 
-                  <ul className="space-y-3 text-zinc-300">
+                  <ul className="space-y-3">
                     {result.issues.map((item) => (
-                      <li
-                        key={item}
-                        className="rounded-lg border border-zinc-800 bg-zinc-900 p-3"
-                      >
+                      <li key={item} className="bg-zinc-900 p-3 rounded">
                         {item}
                       </li>
                     ))}
@@ -309,12 +262,9 @@ export default function Home() {
                     Strengths
                   </h3>
 
-                  <ul className="space-y-3 text-zinc-300">
+                  <ul className="space-y-3">
                     {result.strengths.map((item) => (
-                      <li
-                        key={item}
-                        className="rounded-lg border border-zinc-800 bg-zinc-900 p-3"
-                      >
+                      <li key={item} className="bg-zinc-900 p-3 rounded">
                         {item}
                       </li>
                     ))}
