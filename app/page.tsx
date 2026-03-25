@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type AuditResult = {
   score: number;
@@ -10,6 +10,26 @@ type AuditResult = {
 };
 
 export default function Home() {
+  // 🔒 AUTH STATE
+  const [authorized, setAuthorized] = useState(false);
+  const [input, setInput] = useState("");
+  const correctCode = "cb-7429-pro"; // change if you want
+
+  useEffect(() => {
+    const saved = localStorage.getItem("coreboost_auth");
+    if (saved === "true") {
+      setAuthorized(true);
+    }
+  }, []);
+
+  const handleLogin = () => {
+    if (input === correctCode) {
+      localStorage.setItem("coreboost_auth", "true");
+      setAuthorized(true);
+    } else {
+      alert("Wrong code");
+    }
+  };
 
   // WEBSITE AUDIT STATES
   const [url, setUrl] = useState("");
@@ -73,7 +93,7 @@ export default function Home() {
     setLoadingLeads(true);
 
     try {
-      const res = await fetch("/api/scrape", {
+      const res = await fetch("http://localhost:3001/scrape", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -93,10 +113,34 @@ export default function Home() {
     }
   }
 
+  if (!authorized) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
+        <h1 className="text-3xl mb-6 font-bold">
+          CoreBoost Internal Tools
+        </h1>
+
+        <input
+          className="bg-zinc-900 border border-zinc-700 p-3 rounded mb-4 w-64 text-center"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Enter access code"
+        />
+
+        <button
+          onClick={handleLogin}
+          className="bg-yellow-500 text-black px-6 py-2 rounded font-semibold"
+        >
+          Enter
+        </button>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-black px-6 py-20 text-white">
       <div className="mx-auto max-w-4xl">
-
+        
         {/* HEADER */}
         <div className="mb-12">
           <h1 className="text-5xl font-bold tracking-tight">
@@ -165,15 +209,34 @@ export default function Home() {
                   <div className="text-sm text-zinc-300">
                     📞 {lead.phone || "No phone"}
                   </div>
-
+                  <p className="text-sm text-yellow-400">
+                    ⭐ {lead.reviews} reviews
+                  </p>
                   {lead.website && (
-                    <a
-                      href={lead.website}
-                      target="_blank"
-                      className="text-sm text-blue-400 underline"
-                    >
-                      Website
-                    </a>
+                    <div className="mt-1">
+
+                      <a
+                        href={lead.website}
+                        target="_blank"
+                        className="text-sm text-blue-400 underline"
+                      >
+                        Visit Website
+                      </a>
+
+                      {/* 👇 THIS IS WHAT YOU'RE MISSING */}
+                      <p className="text-xs text-blue-300 break-all">
+                        {lead.website}
+                      </p>
+
+                      {/* 👇 COPY BUTTON */}
+                      <button
+                        onClick={() => navigator.clipboard.writeText(lead.website)}
+                        className="text-xs text-gray-400 hover:text-white"
+                      >
+                        Copy URL
+                      </button>
+
+                    </div>
                   )}
                 </div>
               ))}
