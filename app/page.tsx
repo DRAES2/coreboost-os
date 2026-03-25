@@ -138,18 +138,39 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-black px-6 py-20 text-white">
-      <div className="mx-auto max-w-4xl">
+    <main className="min-h-screen bg-black text-white">
+
+      {/* 🔥 NAVBAR */}
+      <div className="border-b border-zinc-800 px-6 py-4 flex justify-between items-center">
         
-        {/* HEADER */}
-        <div className="mb-12">
-          <h1 className="text-5xl font-bold tracking-tight">
-            CoreBoost SEO Tools
-          </h1>
-          <p className="mt-4 text-lg text-zinc-300">
-            Find leads and audit websites instantly while cold calling.
-          </p>
+        {/* LEFT */}
+        <div className="flex items-center gap-6">
+          <h1 className="text-xl font-bold">CoreBoost</h1>
+
+          <button className="text-zinc-400 hover:text-white">
+            Dashboard
+          </button>
+
+          <button className="text-zinc-400 hover:text-white">
+            Onboarding
+          </button>
         </div>
+
+        {/* RIGHT */}
+        <button
+          onClick={() => {
+            localStorage.removeItem("coreboost_auth");
+            setAuthorized(false);
+          }}
+          className="text-red-400 text-sm"
+        >
+          Logout
+        </button>
+
+      </div>
+
+      {/* 🔽 EXISTING CONTENT */}
+      <div className="px-6 py-10">
 
         {/* ========================= */}
         {/* LEAD FINDER */}
