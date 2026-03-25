@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 type AuditResult = {
@@ -14,6 +15,7 @@ export default function Home() {
   const [authorized, setAuthorized] = useState(false);
   const [input, setInput] = useState("");
   const correctCode = "cb-7429-pro"; // change if you want
+  const router = useRouter();
 
   useEffect(() => {
     const saved = localStorage.getItem("coreboost_auth");
@@ -151,7 +153,10 @@ export default function Home() {
             Dashboard
           </button>
 
-          <button className="text-zinc-400 hover:text-white">
+          <button
+            onClick={() => router.push("/client/onboarding")}
+            className="text-zinc-400 hover:text-white"
+          >
             Onboarding
           </button>
         </div>
