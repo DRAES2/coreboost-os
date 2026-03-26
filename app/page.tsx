@@ -142,41 +142,6 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white">
 
-      {/* 🔥 NAVBAR */}
-      <div className="border-b border-zinc-800 px-6 py-4 flex justify-between items-center">
-        
-        {/* LEFT */}
-        <div className="flex items-center gap-6">
-          <h1 className="text-xl font-bold">CoreBoost</h1>
-
-          <button
-            onClick={() => router.push("/client/dashboard")}
-            className="text-zinc-400 hover:text-white"
-          >
-            Dashboard
-          </button>
-
-          <button
-            onClick={() => router.push("/client/onboarding")}
-            className="text-zinc-400 hover:text-white"
-          >
-            Onboarding
-          </button>
-        </div>
-
-        {/* RIGHT */}
-        <button
-          onClick={() => {
-            localStorage.removeItem("coreboost_auth");
-            setAuthorized(false);
-          }}
-          className="text-red-400 text-sm"
-        >
-          Logout
-        </button>
-
-      </div>
-
       {/* 🔽 EXISTING CONTENT */}
       <div className="px-6 py-10">
 
