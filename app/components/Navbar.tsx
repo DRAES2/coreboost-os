@@ -1,9 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
+
+  const linkClass = (path: string) =>
+    pathname === path
+      ? "text-white font-semibold"
+      : "text-zinc-400 hover:text-white";
 
   return (
     <div className="border-b border-zinc-800 px-6 py-4 flex justify-between items-center bg-black text-white">
@@ -14,28 +20,28 @@ export default function Navbar() {
 
         <button
           onClick={() => router.push("/")}
-          className="text-zinc-400 hover:text-white"
+          className={linkClass("/")}
         >
           Dashboard
         </button>
 
         <button
           onClick={() => router.push("/client/onboarding")}
-          className="text-zinc-400 hover:text-white"
+          className={linkClass("/client/onboarding")}
         >
           Client Setup
         </button>
 
         <button
           onClick={() => router.push("/client")}
-          className="text-zinc-400 hover:text-white"
+          className={linkClass("/client")}
         >
           Clients
         </button>
 
         <button
           onClick={() => router.push("/client/dashboard")}
-          className="text-zinc-400 hover:text-white"
+          className={linkClass("/client/dashboard")}
         >
           Client View
         </button>
