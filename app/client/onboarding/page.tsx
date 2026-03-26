@@ -2,75 +2,61 @@
 
 import { useState } from "react";
 
-export default function Onboarding() {
-  const [form, setForm] = useState({
-    name: "",
-    website: "",
-    phone: "",
-    city: "",
-    service: "",
-    googleLink: "",
-    goals: "",
-  });
+export default function ClientSetup() {
+  const steps = [
+    "Collect client info (name, phone, website)",
+    "Run full Google + website audit",
+    "Identify main keyword + service area",
+    "Analyze top 3 competitors",
+    "Optimize Google Business Profile",
+    "Start review strategy",
+    "Fix citations (NAP consistency)",
+    "Begin posting + activity signals",
+  ];
 
-  const handleChange = (e: any) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const [completed, setCompleted] = useState<boolean[]>(
+    new Array(steps.length).fill(false)
+  );
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    console.log("CLIENT DATA:", form);
-    alert("Submitted (check console)");
+  const toggleStep = (index: number) => {
+    const updated = [...completed];
+    updated[index] = !updated[index];
+    setCompleted(updated);
   };
 
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-10">
+    <div className="max-w-3xl mx-auto space-y-6">
 
-      <h1 className="text-3xl font-bold mb-6">
-        Client Onboarding
+      {/* TITLE */}
+      <h1 className="text-3xl font-bold">
+        Client Setup Workflow
       </h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-xl space-y-4"
-      >
+      <p className="text-zinc-400">
+        Follow this process after closing a new client to ensure consistent results.
+      </p>
 
-        <input name="name" placeholder="Business Name"
-          onChange={handleChange}
-          className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded" />
+      {/* CHECKLIST */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 space-y-4">
 
-        <input name="website" placeholder="Website URL"
-          onChange={handleChange}
-          className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded" />
+        {steps.map((step, i) => (
+          <div
+            key={i}
+            className="flex items-center justify-between p-3 bg-black border border-zinc-700 rounded"
+          >
+            <span>{step}</span>
 
-        <input name="phone" placeholder="Phone Number"
-          onChange={handleChange}
-          className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded" />
+            <input
+              type="checkbox"
+              checked={completed[i]}
+              onChange={() => toggleStep(i)}
+              className="w-5 h-5"
+            />
+          </div>
+        ))}
 
-        <input name="city" placeholder="Service Area / City"
-          onChange={handleChange}
-          className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded" />
+      </div>
 
-        <input name="service" placeholder="Main Service (plumbing, roofing, etc.)"
-          onChange={handleChange}
-          className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded" />
-
-        <input name="googleLink" placeholder="Google Business Profile Link"
-          onChange={handleChange}
-          className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded" />
-
-        <textarea name="goals" placeholder="What are your goals?"
-          onChange={handleChange}
-          className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded" />
-
-        <button
-          type="submit"
-          className="bg-yellow-500 text-black px-6 py-3 rounded font-semibold"
-        >
-          Submit
-        </button>
-
-      </form>
-    </main>
+    </div>
   );
 }
