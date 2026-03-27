@@ -61,7 +61,7 @@ export default function Clients() {
                     onChange={(e) =>
                       updateClient(i, "name", e.target.value)
                     }
-                    className="w-full bg-black border border-zinc-700 p-2 rounded"
+                    className="w-full bg-black text-white border border-zinc-700 p-2 rounded"
                   />
                 </td>
 
@@ -71,7 +71,7 @@ export default function Clients() {
                     onChange={(e) =>
                       updateClient(i, "service", e.target.value)
                     }
-                    className="w-full bg-black border border-zinc-700 p-2 rounded"
+                    className="w-full bg-black text-white border border-zinc-700 p-2 rounded"
                   />
                 </td>
 
@@ -81,7 +81,7 @@ export default function Clients() {
                     onChange={(e) =>
                       updateClient(i, "phone", e.target.value)
                     }
-                    className="w-full bg-black border border-zinc-700 p-2 rounded"
+                    className="w-full bg-black text-white border border-zinc-700 p-2 rounded"
                   />
                 </td>
 
@@ -91,7 +91,7 @@ export default function Clients() {
                     onChange={(e) =>
                       updateClient(i, "status", e.target.value)
                     }
-                    className="w-full bg-black border border-zinc-700 p-2 rounded"
+                    className="w-full bg-black text-white placeholder-zinc-500 border border-zinc-700 p-2 rounded"
                   >
                     <option>New</option>
                     <option>In Progress</option>
@@ -106,7 +106,7 @@ export default function Clients() {
                     onChange={(e) =>
                       updateClient(i, "notes", e.target.value)
                     }
-                    className="w-full bg-black border border-zinc-700 p-2 rounded"
+                    className="w-full bg-black text-white border border-zinc-700 p-2 rounded"
                   />
                 </td>
 
