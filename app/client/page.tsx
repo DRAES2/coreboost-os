@@ -1,21 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+type Client = {
+  name: string;
+  service: string;
+  phone: string;
+  status: string;
+  notes: string;
+};
 
 export default function Clients() {
-  const [clients, setClients] = useState([
-    {
-      name: "ABC Plumbing",
-      service: "Plumbing",
-      phone: "602-123-4567",
-      status: "New",
-      notes: "",
-    },
-  ]);
+  const [clients, setClients] = useState<Client[]>([]);
 
-  const updateClient = (index: number, field: string, value: string) => {
+  // 🔥 LOAD CLIENTS ON PAGE LOAD
+  useEffect(() => {
+    const saved = localStorage.getItem("coreboost_clients");
+    if (saved) {
+      setClients(JSON.parse(saved));
+    }
+  }, []);
+
+  // 🔥 SAVE CLIENTS WHEN THEY CHANGE
+  useEffect(() => {
+    localStorage.setItem("coreboost_clients", JSON.stringify(clients));
+  }, [clients]);
+
+  const updateClient = (index: number, field: keyof Client, value: string) => {
     const updated = [...clients];
-    (updated[index] as any)[field] = value;
+    updated[index][field] = value;
     setClients(updated);
   };
 
@@ -61,7 +74,7 @@ export default function Clients() {
                     onChange={(e) =>
                       updateClient(i, "name", e.target.value)
                     }
-                    className="w-full bg-black text-white border border-zinc-700 p-2 rounded"
+                    className="w-full bg-black text-white placeholder-zinc-500 border border-zinc-700 p-2 rounded"
                   />
                 </td>
 
@@ -71,7 +84,7 @@ export default function Clients() {
                     onChange={(e) =>
                       updateClient(i, "service", e.target.value)
                     }
-                    className="w-full bg-black text-white border border-zinc-700 p-2 rounded"
+                    className="w-full bg-black text-white placeholder-zinc-500 border border-zinc-700 p-2 rounded"
                   />
                 </td>
 
@@ -81,7 +94,7 @@ export default function Clients() {
                     onChange={(e) =>
                       updateClient(i, "phone", e.target.value)
                     }
-                    className="w-full bg-black text-white border border-zinc-700 p-2 rounded"
+                    className="w-full bg-black text-white placeholder-zinc-500 border border-zinc-700 p-2 rounded"
                   />
                 </td>
 
@@ -91,7 +104,7 @@ export default function Clients() {
                     onChange={(e) =>
                       updateClient(i, "status", e.target.value)
                     }
-                    className="w-full bg-black text-white placeholder-zinc-500 border border-zinc-700 p-2 rounded"
+                    className="w-full bg-black text-white border border-zinc-700 p-2 rounded"
                   >
                     <option>New</option>
                     <option>In Progress</option>
@@ -106,7 +119,7 @@ export default function Clients() {
                     onChange={(e) =>
                       updateClient(i, "notes", e.target.value)
                     }
-                    className="w-full bg-black text-white border border-zinc-700 p-2 rounded"
+                    className="w-full bg-black text-white placeholder-zinc-500 border border-zinc-700 p-2 rounded"
                   />
                 </td>
 
